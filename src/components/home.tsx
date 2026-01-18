@@ -16,7 +16,7 @@ const Home: FC<IProps> = () => {
   console.log("render: page:", page);
   const {
     data: words,
-    isLoading,
+
     error,
   } = useWords((page - 1) * pageSize, page * pageSize - 1);
   console.log("data: ", words);
