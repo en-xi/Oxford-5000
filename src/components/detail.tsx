@@ -1,5 +1,4 @@
-import { useState, type FC, type ReactNode } from "react";
-import { FcMinus, FcPlus } from "react-icons/fc";
+import { type FC, type ReactNode } from "react";
 import styled from "styled-components";
 import { type Detail } from "../entities/Detail";
 
@@ -9,37 +8,36 @@ interface IProps {
 }
 
 const Detail: FC<IProps> = ({ detail }) => {
-  const [isShowExamples, setIsShowExamples] = useState(false);
-
-  const toggleShowExamples = () => setIsShowExamples(!isShowExamples);
-
   return (
     <Wrap>
-      <div>
-        <span className="name">{detail.name}</span>
-        <span className="pos">{detail.pos}</span>
+      <div className="flex">
+        <div>
+          <span className="name">{detail.name}</span>
+          <span className="pos">{detail.pos}</span>
+        </div>
+        <a target="blank" href={detail.url}>
+          more
+        </a>
       </div>
       <hr />
 
       <div className="detail">
-        {isShowExamples ? (
-          <FcMinus onClick={toggleShowExamples} className="show" />
-        ) : (
-          <FcPlus onClick={toggleShowExamples} className="show" />
-        )}
-
         <span className="level">{detail.level}</span>
         {detail.def_en}
       </div>
 
-      {isShowExamples && (
+      {
         <div>
-          examples:
-          {detail.examples.map((example, i) => (
-            <div key={i}>{example}</div>
-          ))}
+          <span className="ex">examples:</span>
+
+          {detail.examples.map((example, i) => {
+            if (i < 3) {
+              return <div key={i}>{example}</div>;
+            }
+            return null;
+          })}
         </div>
-      )}
+      }
     </Wrap>
   );
 };
@@ -47,6 +45,22 @@ const Detail: FC<IProps> = ({ detail }) => {
 export default Detail;
 
 const Wrap = styled.div`
+  .flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  a {
+    cursor: pointer;
+    color: black;
+  }
+  a:hover {
+    color: blue;
+    text-decoration: underline;
+  }
+  .ex {
+    color: green;
+  }
   .show {
     cursor: pointer;
   }

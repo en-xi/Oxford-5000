@@ -12,12 +12,18 @@ interface IProps {
 }
 
 const Details: FC<IProps> = ({ word, playAudio }) => {
+  const play = () => playAudio(word.audio_us);
   return (
     <Wrap>
       <span className="level">{word.level}</span>
       <span>
         {word.phonetic_us}
-        <Button type="link" onClick={() => playAudio(word.audio_us)}>
+        <Button
+          className="button"
+          type="link"
+          onMouseEnter={play}
+          onClick={play}
+        >
           <FcSpeaker />
         </Button>
       </span>
@@ -38,6 +44,11 @@ const Details: FC<IProps> = ({ word, playAudio }) => {
 export default Details;
 
 const Wrap = styled.div`
+  .button {
+    padding: 0;
+    margin-left: 20px;
+  }
+
   text-align: left;
 
   .level {

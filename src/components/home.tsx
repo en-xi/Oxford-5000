@@ -1,8 +1,10 @@
 import { Collapse, CollapseProps, Pagination } from "antd";
 import { useRef, useState, type FC, type ReactNode } from "react";
 import styled from "styled-components";
-import { useWords } from "../hook/useWords";
+import { useTotal, useWords } from "../hook/useWords";
+import { getLocalStorageItem, setLocalStorageItem } from "../util/localStorage";
 import Details from "./details";
+import SkeletonList from "./skeletonList";
 import Title from "./title";
 
 interface IProps {
@@ -11,14 +13,17 @@ interface IProps {
 
 const Home: FC<IProps> = () => {
   const audioRef = useRef<HTMLAudioElement>(null);
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(20);
-  console.log("render: page:", page);
+  const [page, setPage] = useState(() => getLocalStorageItem("page", 1));
+  const [pageSize, setPageSize] = useState(() =>
+    getLocalStorageItem("pageSize", 10),
+  );
+
   const {
     data: words,
-
+    isLoading,
     error,
   } = useWords((page - 1) * pageSize, page * pageSize - 1);
+  const { data: total } = useTotal();
   console.log("data: ", words);
   if (error) throw error;
 
@@ -30,30 +35,45 @@ const Home: FC<IProps> = () => {
   const items: CollapseProps["items"] = words?.map((word, i) => {
     return {
       key: i,
-      label: <Title word={word} />,
+      label: <Title word={word} playAudio={playAudio} />,
       children: <Details word={word} playAudio={playAudio} />,
       showArrow: false,
     };
   });
 
-  let onPageChange = (page: number, pageSize: number) => {
-    console.log("page: ", page);
-    console.log("pageSize: ", pageSize);
+  let pageOnChange = (page: number, pageSize: number) => {
     setPage(page);
     setPageSize(pageSize);
+    setLocalStorageItem("page", page);
+    setLocalStorageItem("pageSize", pageSize);
   };
+
   return (
     <Wrap>
       <Pagination
-        total={85}
-        showTotal={(total, range) =>
-          `${range[0]}-${range[1]} of ${total} items`
-        }
-        defaultPageSize={20}
-        defaultCurrent={1}
-        onChange={onPageChange}
+        simple
+        total={total}
+        showTotal={(total) => `${total}`}
+        pageSize={pageSize}
+        current={page}
+        onChange={pageOnChange}
       />
-      <Collapse accordion bordered={false} items={items} />
+
+      {isLoading ? (
+        <SkeletonList rows={pageSize} />
+      ) : (
+        <Collapse accordion bordered={false} items={items} />
+      )}
+
+      <Pagination
+        simple
+        total={total}
+        showTotal={(total) => `${total}`}
+        pageSize={pageSize}
+        current={page}
+        onChange={pageOnChange}
+      />
+
       <audio ref={audioRef} />
     </Wrap>
   );

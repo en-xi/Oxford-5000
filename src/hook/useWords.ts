@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import words from "../data/words";
-import { getWords } from "../services/api-client";
+import { getTotal, getWords } from "../services/api-client";
 
 export let useWords = (from: number, to: number) =>
   useQuery({
@@ -9,6 +8,14 @@ export let useWords = (from: number, to: number) =>
       console.log("run getWords()");
       return getWords(from, to);
     },
+  });
 
-    initialData: words,
+export let useTotal = () =>
+  useQuery({
+    queryKey: ["total"],
+    queryFn: async () => {
+      let total = await getTotal();
+      console.log("total: ", total);
+      return total;
+    },
   });
